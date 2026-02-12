@@ -1,0 +1,157 @@
+pipeline {
+
+    agent any
+
+    options {
+        timeout(time: 30, unit: 'MINUTES')          // Auto abort after 30 mins
+        retry(2)                                    // Retry whole pipeline 2 times
+        buildDiscarder(logRotator(
+            numToKeepStr: '20',
+            daysToKeepStr: '14'
+        ))
+        disableConcurrentBuilds()                   // Prevent parallel builds
+    }
+
+    parameters {
+        choice(name: 'ENVIRONMENT', choices: ['dev', 'stage', 'prod'], description: 'Deployment environment')
+        booleanParam(name: 'RUN_TESTS', defaultValue: true, description: 'Run unit tests')
+        booleanParam(name: 'FORCE_FAIL', defaultValue: false, description: 'Force pipeline failure')
+    }
+
+    environment {
+        APP_NAME = "myapp"
+        DOCKER_IMAGE = "myrepo/myapp:${env.BUILD_NUMBER}"
+        DEPLOY_SERVER = credentials('deploy-server-ip')   // Jenkins credential ID
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                script {
+                    echo "Building ${APP_NAME}"
+                    sh """
+                        docker build -t ${DOCKER_IMAGE} .
+                    """
+                }
+            }
+        }
+
+        stage('Unit Tests') {
+            when {
+                expression { params.RUN_TESTS == true }
+            }
+            steps {
+                sh "echo Running tests"
+                sh "sleep 2"
+            }
+        }
+
+        stage('Static Code Analysis') {
+            parallel {
+                stage('Lint') {
+                    steps {
+                        sh "echo Running linter"
+                    }
+                }
+                stage('Security Scan') {
+                    steps {
+                        sh "echo Running security scan"
+                    }
+                }
+            }
+        }
+
+        stage('Quality Gate Check') {
+            steps {
+                script {
+                    def qualityStatus = "PASS"  // Simulate result
+
+                    if (qualityStatus != "PASS") {
+                        error("Quality gate failed")
+                    }
+                }
+            }
+        }
+
+        stage('Force Fail Stage') {
+            when {
+                expression { params.FORCE_FAIL == true }
+            }
+            steps {
+                script {
+                    error("Pipeline intentionally failed by parameter")
+                }
+            }
+        }
+
+        stage('Push Image') {
+            when {
+                anyOf {
+                    branch 'main'
+                    branch 'master'
+                }
+            }
+            steps {
+                sh """
+                    echo Pushing Docker image
+                    docker push ${DOCKER_IMAGE}
+                """
+            }
+        }
+
+        stage('Approval for Production') {
+            when {
+                expression { params.ENVIRONMENT == 'prod' }
+            }
+            steps {
+                input message: "Approve production deployment?", ok: "Deploy"
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                script {
+                    if (params.ENVIRONMENT == "prod" && env.BRANCH_NAME != "main") {
+                        error("Production deploy allowed only from main branch")
+                    }
+
+                    sh """
+                        echo Deploying to ${params.ENVIRONMENT}
+                        ssh user@${DEPLOY_SERVER} 'docker pull ${DOCKER_IMAGE}'
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+
+        always {
+            echo "Cleaning workspace"
+            cleanWs()
+        }
+
+        success {
+            echo "Pipeline succeeded"
+        }
+
+        failure {
+            echo "Pipeline failed"
+        }
+
+        unstable {
+            echo "Pipeline unstable"
+        }
+
+        aborted {
+            echo "Pipeline aborted"
+        }
+    }
+}
