@@ -1,0 +1,69 @@
+# ===============================
+# Stage 1: Builder
+# ===============================
+FROM node:20-alpine AS builder
+
+# Metadata labels
+LABEL maintainer="you@example.com" \
+      org.opencontainers.image.title="Production App" \
+      org.opencontainers.image.description="Hardened production-ready container" \
+      org.opencontainers.image.version="1.0.0"
+
+# Build arguments
+ARG NODE_ENV=production
+ARG APP_VERSION=1.0.0
+
+# Set working directory
+WORKDIR /app
+
+# Install dependencies separately (better layer caching)
+COPY package.json package-lock.json ./
+
+# Install only production dependencies
+RUN npm ci --only=production
+
+# Copy rest of the source code
+COPY . .
+
+# Optional: Build step (if using TypeScript / React etc.)
+RUN npm run build || echo "No build step"
+
+# ===============================
+# Stage 2: Runtime (Small + Secure)
+# ===============================
+FROM node:20-alpine AS runtime
+
+# Install tini for proper signal handling
+RUN apk add --no-cache tini
+
+# Create non-root user
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+# Set working directory
+WORKDIR /app
+
+# Copy only required files from builder
+COPY --from=builder /app /app
+
+# Change ownership
+RUN chown -R appuser:appgroup /app
+
+# Switch to non-root user
+USER appuser
+
+# Environment variables
+ENV NODE_ENV=production \
+    PORT=3000
+
+# Expose application port
+EXPOSE 3000
+
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD wget --spider http://localhost:3000/health || exit 1
+
+# Use tini as entrypoint (prevents zombie processes)
+ENTRYPOINT ["/sbin/tini", "--"]
+
+# Default command
+CMD ["node", "server.js"]
