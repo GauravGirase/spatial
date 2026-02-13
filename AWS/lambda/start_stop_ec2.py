@@ -1,6 +1,11 @@
 import boto3
 import json
 
+'''
+event → contains input data (like { "action": "start" })
+
+context → runtime info about the Lambda execution
+'''
 def lambda_handler(event, context):
     ec2 = boto3.client('ec2')
     sns = boto3.client('sns')
