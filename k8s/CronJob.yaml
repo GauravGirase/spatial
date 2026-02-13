@@ -13,3 +13,5 @@ spec:
           - name: backup
             image: backup-image
           restartPolicy: OnFailure
+# aaj kal mera system
+# sachin job se, time se con nai re?
