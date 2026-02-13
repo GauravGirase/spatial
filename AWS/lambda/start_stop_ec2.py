@@ -5,6 +5,17 @@ import json
 event → contains input data (like { "action": "start" })
 
 context → runtime info about the Lambda execution
+eg:
+LambdaContext([
+    function_name='ec2-auto-start-stop',
+    function_version='$LATEST',
+    invoked_function_arn='arn:aws:lambda:ap-south-1:12345678:function:ec2-auto-start-stop',
+    memory_limit_in_mb=128,
+    aws_request_id='1f3e2d4a-xxxx-xxxx-xxxx-abcdef123456',
+    log_group_name='/aws/lambda/ec2-auto-start-stop',
+    log_stream_name='2026/02/13/[$LATEST]abcdef1234567890'
+])
+
 '''
 def lambda_handler(event, context):
     ec2 = boto3.client('ec2')
