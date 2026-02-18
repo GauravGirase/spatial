@@ -28,17 +28,21 @@ def create_connection():
     )
 
 def create_table(cursor):
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            first_name VARCHAR(50),
-            last_name VARCHAR(50),
-            email VARCHAR(100) UNIQUE,
-            phone VARCHAR(20),
-            address TEXT,
-            created_at DATETIME
-        )
-    """)
+    sql = (
+        "CREATE TABLE IF NOT EXISTS users ("
+        "id INT NOT NULL AUTO_INCREMENT,"
+        "first_name VARCHAR(50),"
+        "last_name VARCHAR(50),"
+        "email VARCHAR(100),"
+        "phone VARCHAR(20),"
+        "address TEXT,"
+        "created_at DATETIME,"
+        "PRIMARY KEY (id)"
+        ") ENGINE=InnoDB;"
+    )
+    print("Executing SQL:", sql)
+    cursor.execute(sql)
+
 
 def generate_fake_user():
     return (
