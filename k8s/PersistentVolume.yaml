@@ -9,3 +9,90 @@ spec:
     - ReadWriteOnce
   hostPath:
     path: /data
+
+# Network-backed PV and PVC
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: prod-ebs
+provisioner: kubernetes.io/aws-ebs
+volumeBindingMode: WaitForFirstConsumer
+allowVolumeExpansion: true  # optional
+parameters:
+  type: gp3
+  fsType: ext4
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: prod-pv-01
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: prod-ebs
+  awsElasticBlockStore:
+    volumeID: <your-ebs-volume-id>
+    fsType: ext4
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: prod
+  name: pvc-creator
+rules:
+  - apiGroups: [""]
+    resources: ["persistentvolumeclaims"]
+    verbs: ["create", "get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  namespace: prod
+  name: pvc-creator-binding
+subjects:
+  - kind: User
+    name: alice
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: pvc-creator
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: prod-pvc
+  namespace: prod
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: prod-ebs
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: prod-app
+  namespace: prod
+spec:
+  containers:
+  - name: app
+    image: nginx
+    volumeMounts:
+      - mountPath: /usr/share/nginx/html
+        name: storage
+  volumes:
+    - name: storage
+      persistentVolumeClaim:
+        claimName: prod-pvc
+---
+# ✅ Summary of the safe workflow:
+# Create dedicated StorageClass → isolates storage
+# Optionally pre-create PVs → prevent uncontrolled dynamic provisioning
+# Create Role + RoleBinding → restrict PVC creation to trusted users
+# Create PVCs using the safe StorageClass → only authorized provisioning
+# Use PVCs in Pods → Pods automatically get EBS volumes attached
