@@ -41,7 +41,7 @@ managedNodeGroups:
     labels:
       lifecycle: ec2-autoscaler     # Custom label applied to all nodes in this group (useful for targeting in node selectors or autoscaler configs)
 ```
-Create the cluster using:
+Create the cluster using: (it will take 20-25 min)
 ```bash
 eksctl create cluster -f eks-config.yaml
 ```
