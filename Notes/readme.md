@@ -6,3 +6,17 @@ A thread:
 - Exists inside a process
 - Shares memory and resources with other threads in the same process
 - Runs independently but cooperatively with other threads
+
+### Real-World Examples
+- Web servers handling thousands of users
+- Games rendering graphics while processing input
+- Mobile apps downloading data in the background
+```bash
+import threading
+
+def task():
+    print("Thread running")
+
+t = threading.Thread(target=task)
+t.start()
+```
