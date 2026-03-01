@@ -179,5 +179,54 @@ spec:
         - protocol: TCP
           port: 3306
 ```
+## 2. For application tier
+```bash
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: backend-policy
+  namespace: app-ns
+spec:
+  policyTypes:
+    - Ingress
+    - Egress
+  podSelector:
+    matchLabels:
+      app: app1
+      role: backend
+
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: app1
+              role: backend
+      ports:
+        - protocol: TCP
+          port: 5678
+
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: app1
+              role: db
+      ports:
+        - protocol: TCP
+          port: 3306
+
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+```
 
 
