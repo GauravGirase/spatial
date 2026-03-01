@@ -104,3 +104,42 @@ spec:
       port: 5678
       targetPort: 5678
   ```
+## Step 4: Database deployment using statefulset
+```bash
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-svc
+  namespace: app-ns
+spec:
+  clusterIP: None
+  selector:
+    app: app1
+    role: db
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+---
+apiVersion: apps/v1
+kind: Stateful
+metadata:
+  name: db-sts
+  namespace: app-ns
+spec:
+  serviceName: db-svc
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app1
+      role: db
+  spec:
+    containers:
+      - name: mysql-container
+        image: mysql:8.0
+        ports:
+          - containerPort: 3306
+        env:
+          - name: MYSQL_ROOT_PASSWORD
+            value: "mystrongpassword"
+```
