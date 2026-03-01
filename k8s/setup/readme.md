@@ -143,3 +143,15 @@ spec:
           - name: MYSQL_ROOT_PASSWORD
             value: "mystrongpassword"
 ```
+## Test: without network policies
+- Check communication from frontend pod
+```bash
+kubectl exec -it frontend-deploy-abc12344 -- bash
+# install telnet
+apt update && apt install -y telnet
+telent backend-svc 5678
+o/p: Connected to backend-svc
+telent db-svc 3306
+o/p: Connected to backend-svc
+```
+
