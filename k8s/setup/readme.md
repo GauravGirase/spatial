@@ -228,5 +228,51 @@ spec:
         - protocol: TCP
           port: 53
 ```
+## 3. For web tier
+```bash
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: frontend-policy
+  namespace: app-ns
+spec:
+  policyTypes:
+    - Ingress
+    - Egress
+  podSelector:
+    matchLabels:
+      app: app1
+      role: frontend
 
+  ingress:
+    - from:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+      ports:
+        - protocol: TCP
+          port: 80
+
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: app1
+              role: backend
+      ports:
+        - protocol: TCP
+          port: 5678
+
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+```
 
