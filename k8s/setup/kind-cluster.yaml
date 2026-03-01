@@ -12,3 +12,6 @@ nodes:
     image: kindest/node:v1.33.1
   - role: worker
     image: kindest/node:v1.33.1
+
+# Use:
+# kind create cluster --config kind-cluster.yaml --name gaurav-demo
