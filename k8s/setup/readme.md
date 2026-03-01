@@ -21,7 +21,7 @@ metadata:
 ```bash
 kubcectl config set-context current --namespace=app-ns
 ```
-## Step 2: Front-end deployment
+## Step 2: Front-end resources deployment
 ```bash
 # front-end.yaml
 apiVersion: apps/v1
@@ -63,3 +63,44 @@ spec:
       targetPort: 80
       nodePort: 31000
 ```
+## Step 3: Backend resources deployment
+```bash
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deploy
+  namespace: app-ns
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: app1
+      role: backend
+  template:
+    metadata:
+      labels:
+        app: app1
+        role: backend
+    spec:
+      containers:
+        - name: backend-container
+          image: python:3.12-slim
+          command: ["python3", "-m", "http.server", "5678"]
+          ports:
+            - containerPort: 5678
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-server
+  namespace: app-ns
+spec:
+  type: ClusterIP
+  selector:
+    app: app1
+    role: backend
+  ports:
+    - protocol: TCP
+      port: 5678
+      targetPort: 5678
+  ```
