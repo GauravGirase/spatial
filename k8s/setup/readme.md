@@ -154,4 +154,30 @@ o/p: Connected to backend-svc
 telent db-svc 3306
 o/p: Connected to backend-svc
 ```
+# Network policies
+## 1. For Database tier
+```bash
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: db-policy
+  namespace: app-ns
+spec:
+  policyTypes:
+    - ingress
+    - egress
+  podSelector:
+    matchLabels:  # it must match with the db labels 
+      app: app1    
+      role: db
+  ingress:
+    - from:
+        - podSelector:  # it must match with the backend labels
+            app: app1
+            role: backend
+      ports:
+        - protocol: TCP
+          port: 3306
+```
+
 
