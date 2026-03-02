@@ -1,0 +1,11 @@
+FROM ollama/ollama
+
+# Start ollama in background, pull model, then stop
+RUN ollama serve & \
+    sleep 5 && \
+    ollama pull mistral:7b-instruct-q4_0 && \
+    pkill ollama
+
+EXPOSE 11434
+
+CMD ["ollama", "serve"]
