@@ -1,4 +1,11 @@
-# Install Calico (CNI with networkpolicy support)
+## Kind Installation
+```bash
+[ $(uname -m) = aarch64 ] && curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.31.0/kind-linux-arm64
+chmod +x ./kind
+sudo mv ./kind /usr/local/bin/kind
+```
+
+## Install Calico (CNI with networkpolicy support)
 ```bash
 kubectcl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.30.2/manifests/calico.yaml
 ```
