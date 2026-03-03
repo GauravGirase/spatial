@@ -63,3 +63,37 @@ http://<SERVER-IP>:8080
 ```bash
 docker exec -it jenkins-server bash -c "cat /var/jenkins_home/secrets/initialAdminPassword"
 ```
+## Prometheus & Grafana setup
+prometheus.yaml
+```bash
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - localhost:9093
+
+rule_files:
+
+scrape_configs:
+  - job_name: "prometheus"
+    static_configs:
+      - targets:
+          - localhost:9090
+        labels:
+          app: prometheus
+```
+### Run prometheus container
+```bash
+docker run -d \
+-p 9090:9090 \
+-v /prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml \
+prom/prometheus:latest
+```
+### Access prometheus
+```bash
+http:<SERVER-IP>:9090
+```
