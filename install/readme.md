@@ -90,10 +90,60 @@ scrape_configs:
 ```bash
 docker run -d \
 -p 9090:9090 \
--v /prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml \
+-v /home/ubuntu/prometheus.yml:/etc/prometheus/prometheus.yml \
 prom/prometheus:latest
 ```
 ### Access prometheus
 ```bash
 http:<SERVER-IP>:9090
+```
+
+### Grafana
+```bash
+docker run -d -p 3000:3000 --name grafana grafana/grafana
+```
+
+## InfluxDB
+```bash
+docker run -d -p 8086:8086 \
+  --name influx-db
+  --user root
+  -v $PWD/data:/var/lib/influxdb \
+  influxdb:1.12.2
+```
+### 
+```bash
+docker exec -it bbd756954c77 bash
+# execute following command
+CREATE DATABASE "jenkins" WITH DURATION 365d REPLICATION 1 NAME "jenkins-retention"
+SHOW DATABASES;
+```
+
+## Install following plgins in jenkins
+- InfluxDB
+- Job and Stage monitoring
+- Prometheus metrics
+
+## Configure influxDB in jenkins
+
+
+## Update prometheus.yaml
+```bash
+- job_name: "jenkins"
+  metrics_path: '/prometheus'
+  static_configs:
+    - targets:
+        - localhost:8080
+```
+## Restart prometheus container
+```bash
+docker restart <prometheus-container>
+```
+
+
+## Queries for dashboard
+```bash
+- default_jenkins_up{instance="43.205.177.169:8080"}
+# Metric: default_jenkins_up 
+# Label filter: instance
 ```
