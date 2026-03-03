@@ -55,3 +55,11 @@ docker run \
   --volume jenkins-docker-certs:/certs/client:ro \
   myjenkins-custom:latest
 ```
+### Access Jenkins 
+```bash
+http://<SERVER-IP>:8080
+```
+### Get initialAdmin password
+```bash
+docker exec -it jenkins-server bash -c "cat /var/jenkins_home/secrets/initialAdminPassword"
+```
