@@ -36,3 +36,22 @@ RUN apt-get update && apt-get install -y lsb-release ca-certificates curl && \
 USER jenkins
 RUN jenkins-plugin-cli --plugins "blueocean docker-workflow json-path-api"
 ```
+### Build an image
+```bash
+docker build -t myjenkins-custom .
+```
+### Run Jenkins
+```bash
+docker run \
+  --name jenkins-server \
+  --restart=on-failure \
+  --detach \
+  --env DOCKER_HOST=tcp://docker:2376 \
+  --env DOCKER_CERT_PATH=/certs/client \
+  --env DOCKER_TLS_VERIFY=1 \
+  --publish 8080:8080 \
+  --publish 50000:50000 \
+  --volume jenkins-data:/var/jenkins_home \
+  --volume jenkins-docker-certs:/certs/client:ro \
+  myjenkins-custom:latest
+```
