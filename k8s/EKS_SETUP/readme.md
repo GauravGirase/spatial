@@ -68,3 +68,7 @@ eksctl create serviceaccount \
 --region ap-south-1
 --approve
 ```
+### verify 
+```bash
+kubectl get sa -n kube-system alb-controller -o yaml
+```
