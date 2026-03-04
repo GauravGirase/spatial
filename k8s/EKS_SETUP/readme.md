@@ -72,3 +72,14 @@ eksctl create serviceaccount \
 ```bash
 kubectl get sa -n kube-system alb-controller -o yaml
 ```
+### step 2.3: Install AWS ALB controller using helm
+```bash
+helm repo add eks https://aws/github.io/eks-charts
+helm repo update eks
+helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
+-n kube-system \
+--set clusterName=gaurav-ingress-poc \
+--set serviceAccount.create=false \
+--set serviceAccount.name=aws-load-balancer-controller \
+--version 1.13.0
+```
