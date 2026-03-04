@@ -27,7 +27,7 @@ spec:
               app: landing-page
       containers:
         - name: landing-page-container
-          image: gauravgirase/landing-page:v1.0.0
+          image: gauravgirase/ingress:v1.0.0
           ports:
             - containerPort: 5678
 ---
@@ -37,7 +37,7 @@ metadata:
   name: landing-page-svc
   namespace: app1-ns
   annotations:
-    alb.ingress.kubernetes.io/healthcheck-path: /index.html
+    alb.ingress.kubernetes.io/healthcheck-path: /
 spec:
   selector:
     app: landing-page
