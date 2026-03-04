@@ -89,4 +89,10 @@ helm search repo eks/aws-load-balancer-controller --version
 kubectl get deployment -n kube-system aws-load-balancer-controller
 kubectl describe pods -n kube-system -l app.kubernetes.io/name=aws-load-balancer-controller
 ```
+## Step 3: Dockerize the application
+```bash
+docker build -t ingress-poc .
+docker tag ingress-poc:latest gauravgirase/landingpage:v1.0.0
+docker push gauravgirase/landingpage:v1.0.0
+```
 
