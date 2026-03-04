@@ -19,7 +19,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /landing
+          - path: /
             pathType: Prefix
             backend:
               service:
