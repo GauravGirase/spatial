@@ -57,7 +57,6 @@ aws iam create-policy \
 --policy-name AWSLoadBalancerContollerIAMPolicy \
 --policy-document file://iam_policy.json
 ```
-## Step 2: Install AWS load balancer controller
 ### step 2.2: Create IAM-Backed k8s svc account
 ```bash
 eksctl create serviceaccount \
