@@ -83,3 +83,10 @@ helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
 --set serviceAccount.name=aws-load-balancer-controller \
 --version 1.13.0
 ```
+### Test with the following commands to ensure ALB controller is installed
+```bash
+helm search repo eks/aws-load-balancer-controller --version
+kubectl get deployment -n kube-system aws-load-balancer-controller
+kubectl describe pods -n kube-system -l app.kubernetes.io/name=aws-load-balancer-controller
+```
+
