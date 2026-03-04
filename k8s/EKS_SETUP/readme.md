@@ -104,7 +104,7 @@ metadata:
   name: ingress-poc
   namespace: app1-ns
   annotations:
-    alb.ingress.kubernetes.io/schema: internet-facing
+    alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/load-balancer-name: ingress-poc
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
@@ -132,6 +132,6 @@ spec:
               service:
                 name: dashboard-svc
                 port:
-                  name: 80
+                  number: 80
 ```
 
