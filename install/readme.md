@@ -162,3 +162,17 @@ unzip -q /tmp/awscliv2.zip -d /tmp
 /tmp/aws/install
 aws --version
 ```
+## Kubectl installation
+```bash
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
+echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+# Note:
+# If you do not have root access on the target system, you can still install kubectl to the ~/.local/bin directory:
+chmod +x kubectl
+mkdir -p ~/.local/bin
+mv ./kubectl ~/.local/bin/kubectl
+# and then append (or prepend) ~/.local/bin to $PATH
+kubectl version --client
+```
