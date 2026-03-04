@@ -57,3 +57,15 @@ aws iam create-policy \
 --policy-name AWSLoadBalancerContollerIAMPolicy \
 --policy-document file://iam_policy.json
 ```
+## Step 2: Install AWS load balancer controller
+### step 2.2: Create IAM-Backed k8s svc account
+```bash
+eksctl create serviceaccount \
+--cluster=gaurav-ingress-poc \
+--namespace=kube-system \
+--name=alb-controller \
+--attach-policy-arn=arn:aws:iam::<ACCOUNT_ID>:policy/AWSLoadBalancerControllerIAMPolicy \
+--override-existing-serviceaccounts \
+--region ap-south-1
+--approve
+```
