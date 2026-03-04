@@ -1,4 +1,5 @@
 ## Step 1: EKS cluster provision
+eks-config.yaml
 ```bash
 apiVersion: eksctl.io/v1alpha5
 kind: ClusterConfig
@@ -37,4 +38,12 @@ managedNodeGroups:
         cloudWatch: false
     labels:
       lifecycle: ec2-autoscaler
+```
+### Apply the config usins eksctl
+```bash
+eksctl create cluster -f eks-config.yaml
+```
+### verify node distribution
+```bash
+kubectl get node --show-labels | grep topology.kubernetes.io/zone
 ```
