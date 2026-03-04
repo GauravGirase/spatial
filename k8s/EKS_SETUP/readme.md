@@ -47,3 +47,13 @@ eksctl create cluster -f eks-config.yaml
 ```bash
 kubectl get node --show-labels | grep topology.kubernetes.io/zone
 ```
+## Step 2: Install AWS load balancer controller
+### step 2.1: Create IAM policy for ALB controller
+```bash
+# Donwload policy
+curl -O https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.13.3/docs/install/iam_policy.json
+# Create policy
+aws iam create-policy \
+--policy-name AWSLoadBalancerContollerIAMPolicy \
+--policy-document file://iam_policy.json
+```
