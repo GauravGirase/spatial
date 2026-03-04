@@ -22,7 +22,7 @@ spec:
               app: dashboard
       containers:
         - name: dashboard-containers
-          image: gauravgirase/dashboard:v1.0.0
+          image: gauravgirase/ingress:v1.0.0
           ports:
             - containerPort: 5678
 ---
@@ -32,7 +32,7 @@ metadata:
   name: dashboard-svc
   namespace: app1-ns
   annotations:
-    alb.ingress.kubernetes.io/healthcheck-path: /dashboard.html
+    alb.ingress.kubernetes.io/healthcheck-path: /dashboard
 spec:
   selector:
     app: dashboard
