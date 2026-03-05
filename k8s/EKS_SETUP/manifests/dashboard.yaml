@@ -32,7 +32,7 @@ metadata:
   name: dashboard-svc
   namespace: app1-ns
   annotations:
-    alb.ingress.kubernetes.io/healthcheck-path: /dashboard
+    alb.ingress.kubernetes.io/healthcheck-path: /dashboard/index.html
 spec:
   selector:
     app: dashboard
