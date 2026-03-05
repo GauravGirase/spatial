@@ -37,7 +37,7 @@ metadata:
   name: landing-page-svc
   namespace: app1-ns
   annotations:
-    alb.ingress.kubernetes.io/healthcheck-path: /
+    alb.ingress.kubernetes.io/healthcheck-path: /index.html
 spec:
   selector:
     app: landing-page
