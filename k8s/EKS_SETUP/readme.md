@@ -59,7 +59,7 @@ aws iam create-policy \
 ```
 ### step 2.2: Create IAM-Backed k8s svc account
 ```bash
-eksctl create serviceaccount \
+eksctl create iamserviceaccount \
 --cluster=gaurav-ingress-poc \
 --namespace=kube-system \
 --name=alb-controller \
