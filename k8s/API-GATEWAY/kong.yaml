@@ -1,0 +1,23 @@
+# k8s/kong-consumer.yaml
+apiVersion: configuration.konghq.com/v1
+kind: KongConsumer
+metadata:
+  name: auth-service-issuer
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: kong
+username: auth-service-issuer
+credentials:
+  - auth-service-jwt-secret   # references the Secret below
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: auth-service-jwt-secret
+  namespace: default
+  labels:
+    konghq.com/credential: jwt
+type: Opaque
+stringData:
+  algorithm: HS256
+  secret: "your-super-secret-key-change-this-in-production"
