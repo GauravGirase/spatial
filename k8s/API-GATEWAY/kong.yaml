@@ -21,3 +21,36 @@ type: Opaque
 stringData:
   algorithm: HS256
   secret: "your-super-secret-key-change-this-in-production"
+---
+# kong-jwt-plugin.yaml
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: jwt-auth
+  namespace: default
+plugin: jwt
+config:
+  key_claim_name: sub          # JWT claim used as the consumer key
+  claims_to_verify:
+    - exp                      # verify token not expired
+  anonymous: ~                 # reject requests with no token
+---
+# Attach to your ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: order-service-ingress
+  annotations:
+    konghq.com/plugins: jwt-auth   # attach the plugin here
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /orders
+            pathType: Prefix
+            backend:
+              service:
+                name: order-service
+                port:
+                  number: 80
+---
