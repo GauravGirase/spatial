@@ -19,6 +19,7 @@ We’ll cover:
 ```bash
 ssh ubuntu@<EC2_IP>
 ```
+
 ## Step 2: Install Docker and BuildKit
 ```bash
 # Update OS
@@ -41,6 +42,57 @@ export DOCKER_BUILDKIT=1
 ```
 ## Step 3: Create cache directories
 **Create per-language cache on NVMe (or EBS mount):**
+```bash
+# Suppose the volume is /dev/nvme1n1
+sudo mkfs.ext4 /dev/nvme1n1
+sudo mkdir -p /mnt/buildkit-cache
+sudo mount /dev/nvme1n1 /mnt/buildkit-cache
+sudo chown -R ubuntu:ubuntu /mnt/buildkit-cache
+```
+**Mount permanently**
+```bash
+lsblk
+```
+Example output:
+```bash
+NAME         MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+nvme0n1      259:0    0    8G  0 disk 
+└─nvme0n1p1  259:1    0    8G  0 part /
+nvme1n1      259:1    0  400G  0 disk 
+```
+**Get UUID of the volume**
+```bash
+sudo blkid /dev/nvme1n1
+
+# Example output:
+/dev/nvme1n1: UUID="f1a2b3c4-d5e6-7890-ab12-34567890cdef" TYPE="ext4"
+```
+**Edit /etc/fstab**
+```bash
+sudo vi /etc/fstab
+UUID=f1a2b3c4-d5e6-7890-ab12-34567890cdef /mnt/buildkit-cache ext4 defaults,nofail 0 2
+```
+**Explanation:**
+- UUID: Volume UUID from blkid
+- Mount point: /mnt/buildkit-cache
+- FS type: ext4
+- Options: defaults,nofail → mount automatically, but don’t fail boot if missing
+- Dump: 0 (unused)
+- Pass: 2 (fsck order)
+### Test the fstab entry
+- No errors → fstab entry works
+```bash
+sudo mount -a
+```
+- Check mount:
+```bash
+df -h | grep buildkit
+```
+**Expected o/p:**
+```bash
+/dev/nvme1n1  400G   1G  399G  1% /mnt/buildkit-cache
+```
+
 ```bash
 sudo mkdir -p /mnt/buildkit-cache/python
 sudo mkdir -p /mnt/buildkit-cache/node
