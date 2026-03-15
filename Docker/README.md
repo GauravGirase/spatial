@@ -29,6 +29,7 @@ sudo apt update && sudo apt upgrade -y
 sudo apt install -y docker.io
 sudo systemctl enable docker
 sudo systemctl start docker
+docker buildx version >/dev/null 2>&1 || docker buildx install
 
 # Add your user to docker group
 sudo usermod -aG docker $USER
