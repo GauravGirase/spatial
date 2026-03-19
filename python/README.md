@@ -110,3 +110,16 @@ print(even)
 ```bash
 [2, 4, 6, 8, 10]
 ```
+## reduce() → Combine to one value
+Reduces list to a single result
+```bash
+from functools import reduce
+
+nums = [1, 2, 3, 4]
+
+result = reduce(lambda x, y: x + y, nums)
+print(result)
+```
+```bash
+10
+```
