@@ -82,6 +82,7 @@ def transaction(func):
 # Map, Filter, Reduce
 ## Map (Transform data)
 Applies a function to every element.
+### Example 1
 ```bash
 array = [1,2,3,4]
 result = list(map(lambda x: x*2, array))
@@ -89,4 +90,13 @@ print(result)
 ```
 ```bash
 o/p: [2, 4, 6, 8]
+```
+### Example 2
+```bash
+list_of_names = ["gaurav", "saurav", "ram", "shyam"]
+upper_case = list(map(lambda name: name.upper(), list_of_names))
+print(upper_case)
+```
+```bash
+['GAURAV', 'SAURAV', 'RAM', 'SHYAM']
 ```
