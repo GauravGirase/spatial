@@ -79,3 +79,14 @@ def transaction(func):
         return result
     return wrapper
 ```
+# Map, Filter, Reduce
+## Map (Transform data)
+Applies a function to every element.
+```bash
+array = [1,2,3,4]
+result = list(map(lambda x: x*2, array))
+print(result)
+```
+```bash
+o/p: [2, 4, 6, 8]
+```
