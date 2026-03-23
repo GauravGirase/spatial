@@ -1,45 +1,94 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: app
+  name: myapp
   namespace: production
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "80"
 spec:
-  replicas: 3
+  replicas: 5
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600
+
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 0
+
   selector:
     matchLabels:
-      app: app
+      app: myapp
+
   template:
     metadata:
-      labels:
-        app: app
+      labels: 
+        app: myapp
+
     spec:
-      serviceAccountName: app-sa
+      serviceAccountName: myapp
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+
       containers:
-      - name: app
-        image: nginx:1.25
-        ports:
-        - containerPort: 80
-        envFrom:
-        - configMapRef:
+        - name: app-container
+          image: your-dockerhub-username/myapp:1.0  
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+
+          env:
+            - name: ENV
+              value: production
+
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+
+          livenessProbe:
+            httpGet:
+              path: /healthz     
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            initialDelaySeconds: 10   
+            periodSeconds: 10
+            failureThreshold: 3
+
+          volumeMounts:
+            - name: config
+              mountPath: /etc/config
+
+      volumes:
+        - name: config
+          configMap:
             name: app-config
-        - secretRef:
-            name: app-secret
-        resources:
-          requests:
-            cpu: "200m"
-            memory: "256Mi"
-          limits:
-            cpu: "500m"
-            memory: "512Mi"
-        livenessProbe:
-          httpGet:
-            path: /
-            port: 80
-          initialDelaySeconds: 10
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /
-            port: 80
-          initialDelaySeconds: 5
-          periodSeconds: 5
+
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - myapp
+                topologyKey: kubernetes.io/hostname
