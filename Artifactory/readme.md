@@ -117,6 +117,10 @@ RUN apt-get install -y --no-install-recommends \
 RUN rm -rf /var/lib/apt/lists/*
 CMD ["bash"]
 ```
+```bash
+printf '%s:%s' 'admin' 'admin1234' > nexus-apt-auth \
+chmod 600 nexus-apt-auth
+```
 # with auth
 ```bash
 # syntax=docker/dockerfile:1
@@ -149,4 +153,11 @@ RUN --mount=type=secret,id=apt_auth,target=/run/secrets/apt_auth \
         git \
         unzip; \
     rm -rf /var/lib/apt/lists/* /etc/apt/auth.conf
+```
+## Built with
+```bash
+DOCKER_BUILDKIT=1 docker build \
+  --secret id=apt_auth,src=nexus-apt-auth \
+  --progress=plain \
+  -t nexus-debian-test .
 ```
