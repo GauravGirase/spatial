@@ -23,3 +23,16 @@ RUN --mount=type=secret,id=artifactory_user \
       -o /app/myapp.jar
 ENTRYPOINT ["java", "-jar", "/app/myapp.jar"]
 ```
+# Docker BuildKit secrets
+```bash
+export ARTIFACTORY_USER=admin
+export ARTIFACTORY_PASSWORD='YOUR_PASSWORD'
+```
+### Build
+```bash
+DOCKER_BUILDKIT=1 docker build \
+  --secret id=artifactory_user,env=ARTIFACTORY_USER \
+  --secret id=artifactory_password,env=ARTIFACTORY_PASSWORD \
+  --build-arg ARTIFACTORY_URL=http://host.docker.internal:8082 \
+  -t myapp:1.0 .
+```
