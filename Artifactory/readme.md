@@ -43,7 +43,7 @@ hostname -I
 # E.G
 http://10.0.0.25:8082
 ```
-# Dockerile
+## Dockerile (without authentication)
 ```
 FROM node:22-bookworm-slim
 
@@ -65,5 +65,35 @@ COPY . .
 EXPOSE 3000
 
 CMD ["npm", "start"]
+```
+## Create the secret .npmrc
+```bash
+cat > nexus-npmrc <<'EOF'
+registry=http://13.233.142.196:8081/repository/npmjs-proxy/
+//13.233.142.196:8081/repository/npmjs-proxy/:_authToken=YOUR_NEXUS_TOKEN
+always-auth=true
+EOF
+```
+```bash
+chmod 600 nexus-npmrc
+```
+## Dockerfile with auth
+```bash
+# syntax=docker/dockerfile:1
+FROM node:22-bookworm-slim
+WORKDIR /app
+COPY package.json ./
+# Use Nexus credentials only during this RUN.
+# The .npmrc is deleted before the layer is committed.
+RUN --mount=type=secret,id=npmrc,target=/root/.npmrc \
+    npm install
+EXPOSE 3000
+CMD ["npm", "start"]
+```
+## Build with BuildKit
+```bash
+DOCKER_BUILDKIT=1 docker build \
+  --secret id=npmrc,src=nexus-npmrc \
+  -t nexus-npm-test .
 ```
 
