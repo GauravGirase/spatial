@@ -117,3 +117,36 @@ RUN apt-get install -y --no-install-recommends \
 RUN rm -rf /var/lib/apt/lists/*
 CMD ["bash"]
 ```
+# with auth
+```bash
+# syntax=docker/dockerfile:1
+
+FROM debian:bookworm-slim
+
+ARG NEXUS_HOST=13.233.142.196:8081
+ARG NEXUS_REPO=debian-proxy
+
+# Configure Nexus repository
+RUN echo "deb http://${NEXUS_HOST}/repository/${NEXUS_REPO} bookworm main" \
+    > /etc/apt/sources.list.d/nexus.list
+
+# Use Nexus credentials only during this build step
+RUN --mount=type=secret,id=apt_auth,target=/run/secrets/apt_auth \
+    set -eux; \
+    auth="$(cat /run/secrets/apt_auth)"; \
+    printf 'machine %s login %s password %s\n' \
+        "${NEXUS_HOST}" \
+        "${auth%%:*}" \
+        "${auth#*:}" \
+        > /etc/apt/auth.conf; \
+    chmod 600 /etc/apt/auth.conf; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends \
+        curl \
+        wget \
+        ca-certificates \
+        jq \
+        git \
+        unzip; \
+    rm -rf /var/lib/apt/lists/* /etc/apt/auth.conf
+```
