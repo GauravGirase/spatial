@@ -43,4 +43,27 @@ hostname -I
 # E.G
 http://10.0.0.25:8082
 ```
+# Dockerile
+```
+FROM node:22-bookworm-slim
+
+WORKDIR /app
+
+# Configure npm to use Nexus Repository
+RUN npm config set registry \
+    http://<IP>:8081/repository/npmjs-proxy/
+
+# Copy package definition first for Docker layer caching
+COPY package.json ./
+
+# Install dependencies through Nexus
+RUN npm install
+
+# Copy application source
+COPY . .
+
+EXPOSE 3000
+
+CMD ["npm", "start"]
+```
 
