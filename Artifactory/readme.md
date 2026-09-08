@@ -96,4 +96,24 @@ DOCKER_BUILDKIT=1 docker build \
   --secret id=npmrc,src=nexus-npmrc \
   -t nexus-npm-test .
 ```
-
+# Debian based image (without auth)
+```
+# syntax=docker/dockerfile:1
+FROM debian:bookworm-slim
+# Configure APT to use Nexus
+RUN echo "deb http://13.233.142.196:8081/repository/debian-proxy bookworm main" \
+    > /etc/apt/sources.list.d/nexus.list
+# Update package metadata through Nexus
+RUN apt-get update
+# Install real Debian packages through Nexus
+RUN apt-get install -y --no-install-recommends \
+    curl \
+    wget \
+    ca-certificates \
+    jq \
+    git \
+    unzip
+# Clean APT cache
+RUN rm -rf /var/lib/apt/lists/*
+CMD ["bash"]
+```
