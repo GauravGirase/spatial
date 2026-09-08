@@ -36,3 +36,11 @@ DOCKER_BUILDKIT=1 docker build \
   --build-arg ARTIFACTORY_URL=http://host.docker.internal:8082 \
   -t myapp:1.0 .
 ```
+# If artifactory container runnning on the same EC2 use IP
+```bash
+hostname -I
+
+# E.G
+http://10.0.0.25:8082
+```
+
